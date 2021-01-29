@@ -15,16 +15,6 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.kotlin</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Topic Dependencies" anchor="right" factoryClass="docs.KapaDocsTopicDependenciesToolWindowFactory"/>
-        <toolWindow id="Docs" anchor="right" factoryClass="docs.KapaDocsToolWindowFactory"/>
-        <projectService serviceImplementation="docs.KapaDocsService" />-->
-    </extensions>
-
-    <projectListeners>
-        <listener class="docs.KapaDocsFileEditorListener" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
-    </projectListeners>
-
     <actions>
         <action id="actions.GenerateBuilderAction"
                 class="actions.GenerateBuilderAction"
@@ -33,4 +23,5 @@
             <add-to-group group-id="GenerateGroup" anchor="last" />
         </action>
     </actions>
+
 </idea-plugin>
