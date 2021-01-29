@@ -1,13 +1,23 @@
 package actions
 
+import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.VirtualFileSystem
+import com.intellij.psi.JavaDirectoryService
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiFileFactory
+import com.intellij.psi.impl.file.PsiDirectoryFactory
 import generator.BuilderGenerator
+import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtUserType
 import java.io.File
@@ -56,13 +66,14 @@ class GenerateBuilderAction: AnAction() {
 
             val poetBuilderFileSpec = BuilderGenerator.generateBuilderForDataClass(dataClass)
 
-            val moduleSourceRoot = ProjectRootManager.getInstance(project!!).fileIndex.getSourceRootForFile(dataClass.containingKtFile.virtualFile)!!.path
-            val sourceRootFile = File(moduleSourceRoot)
+            // TODO overwrite + warning?
+            WriteCommandAction.runWriteCommandAction(project) {
+                val factory = PsiFileFactory.getInstance(project);
+                val psiFile = factory.createFileFromText(poetBuilderFileSpec.name + ".kt", KotlinFileType.INSTANCE ,poetBuilderFileSpec.toString())
+                val writtenPsiFile = dataClass.containingFile.containingDirectory.add(psiFile) as PsiFile
+                OpenFileDescriptor(project!!, writtenPsiFile.virtualFile).navigate(true)
+            }
 
-            val targetFile = File(sourceRootFile, "/" + poetBuilderFileSpec.packageName + "/" + poetBuilderFileSpec.name + ".kt")
-            poetBuilderFileSpec.writeTo(targetFile.printWriter())
-
-            OpenFileDescriptor(project, LocalFileSystem.getInstance().findFileByIoFile(targetFile)!!).navigate(true)
         }
     }
 }
