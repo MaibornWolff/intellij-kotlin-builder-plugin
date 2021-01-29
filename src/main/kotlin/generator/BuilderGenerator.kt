@@ -44,8 +44,6 @@ object BuilderGenerator {
                     )
             .build()
 
-        file.writeTo(System.out)
-
         return file
     }
 
