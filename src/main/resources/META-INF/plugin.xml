@@ -32,6 +32,7 @@
                 text="Generate Builder Class"
                 description="Generate a builder class for the currently focused data class">
             <add-to-group group-id="CodeMenu" anchor="first"/>
+            <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="actions.GenerateBuilderAction"/>
         </action>
     </actions>
 </idea-plugin>
