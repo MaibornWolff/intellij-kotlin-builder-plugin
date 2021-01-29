@@ -34,9 +34,9 @@ object BuilderGenerator {
 
         val packageName =  dataClassFqName.substring(0, dataClassFqName.lastIndexOf('.'))
 
-        val file = FileSpec.builder("", builderClassName)
+        val file = FileSpec.builder(packageName, builderClassName)
             .addType(
-                TypeSpec.classBuilder(ClassName(packageName, builderClassName)) // TODO fix package name
+                TypeSpec.classBuilder(ClassName(packageName, builderClassName))
                     .addPropertyFields(parameters)
                     .addBuildFunction(parameters, dataClassSimpleName, packageName)
                     .addWithFunctions(parameters, builderClassName, packageName)
