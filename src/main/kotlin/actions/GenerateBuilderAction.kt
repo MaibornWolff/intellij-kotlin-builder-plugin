@@ -3,6 +3,7 @@ package actions
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.Messages
+import generator.BuilderGenerator
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtUserType
 
@@ -53,6 +54,8 @@ class GenerateBuilderAction: AnAction() {
                 "Generator Called Successfully",
                 Messages.getInformationIcon()
                                       )
+
+            BuilderGenerator.generateBuilderForDataClass(dataClass)
         }
     }
 }
