@@ -1,34 +1,22 @@
 package actions
 
-import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.vfs.VirtualFileSystem
-import com.intellij.psi.JavaDirectoryService
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
-import com.intellij.psi.impl.file.PsiDirectoryFactory
 import generator.BuilderGenerator
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtUserType
-import java.io.File
 
 
 class GenerateBuilderAction: AnAction() {
 
-    override fun update(event: AnActionEvent) {
-        val classUnderCursor = event.dataContext.getData("psi.Element") as? KtClass
-        event.presentation.isEnabledAndVisible = classUnderCursor != null && classUnderCursor.isData()
-    }
+    // TODO implement a check which makes the action invisible when caret is not on a valid class
 
     override fun actionPerformed(event: AnActionEvent) {
 
