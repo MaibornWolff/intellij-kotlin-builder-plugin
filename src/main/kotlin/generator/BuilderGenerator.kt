@@ -1,7 +1,6 @@
 package generator
 
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.*
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtUserType
@@ -15,18 +14,31 @@ object BuilderGenerator {
         "Boolean" to Boolean::class
                                          )
 
+    private val defaultValuesMap = mapOf(
+        String::class to "\"a string\"",
+        Int::class to "42",
+        Boolean::class to "false"
+                                        )
+
     // TODO: return something useful to open generated class in intellij after action
     fun generateBuilderForDataClass(dataClass: KtClass) {
 
         val builderClassName = dataClass.name + "Builder"
 
         val parameters = dataClass.primaryConstructorParameters
-            .map { it.name to resolveType(it) }
+            .map { it.name!! to resolveType(it) }
 
         val file = FileSpec.builder("", builderClassName)
             .addType(
                 TypeSpec.classBuilder(builderClassName)
-                    // TODO
+                    .addProperties(parameters.map { (name, kclass) ->
+                        PropertySpec.builder(name, kclass)
+                            .addModifiers(KModifier.PRIVATE)
+                            .mutable()
+                            .initializer(CodeBlock.of(defaultValuesMap[kclass]!!))
+                            .build()
+                    })
+                    // TODO: build function
                     .build()
                     )
             .build()
