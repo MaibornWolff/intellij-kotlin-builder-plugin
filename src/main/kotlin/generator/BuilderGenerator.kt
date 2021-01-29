@@ -14,6 +14,7 @@ object BuilderGenerator {
         "Boolean" to Boolean::class
                                          )
 
+    // TODO if there already is a default value we should not replace it
     private val defaultValuesMap = mapOf(
         String::class to "\"a string\"",
         Int::class to "42",
@@ -31,13 +32,8 @@ object BuilderGenerator {
         val file = FileSpec.builder("", builderClassName)
             .addType(
                 TypeSpec.classBuilder(builderClassName)
-                    .addProperties(parameters.map { (name, kclass) ->
-                        PropertySpec.builder(name, kclass)
-                            .addModifiers(KModifier.PRIVATE)
-                            .mutable()
-                            .initializer(CodeBlock.of(defaultValuesMap[kclass]!!))
-                            .build()
-                    })
+                    .addPropertyFields(parameters)
+                    .addBuildFunction(dataClass, parameters)
                     // TODO: build function
                     .build()
                     )
@@ -51,4 +47,23 @@ object BuilderGenerator {
         val type = supportedTypesMap[typeName]
         return type ?: throw NotImplementedError("Parameter type $typeName not yet supported")
     }
+
+    fun TypeSpec.Builder.addBuildFunction(dataClass: KtClass, parameters: List<Pair<String, KClass<out Any>>>): TypeSpec.Builder {
+        val fqName = dataClass.fqName!!.asString()
+        val packageName =  fqName.substring(0, fqName.lastIndexOf('.'))
+        val simpleName = dataClass.name!!
+        return this.addFunction(FunSpec.builder("build")
+            .returns(ClassName(packageName, simpleName))
+            .addStatement("return ${simpleName}(${parameters.joinToString { (name, _) -> "$name = $name" }})")
+            .build())
+    }
+
+    fun TypeSpec.Builder.addPropertyFields(parameters: List<Pair<String, KClass<out Any>>>) =
+        this.addProperties(parameters.map { (name, kclass) ->
+            PropertySpec.builder(name, kclass)
+                .addModifiers(KModifier.PRIVATE)
+                .mutable()
+                .initializer(CodeBlock.of(defaultValuesMap[kclass]!!))
+                .build()
+        })
 }
