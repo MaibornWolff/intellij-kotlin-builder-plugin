@@ -16,9 +16,6 @@
     <depends>org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <codeInsight.lineMarkerProvider language="kotlin"
-                                        implementationClass="linemarker.KafkaLineMarkerProvider"/>
-        <!-- TODO Authentifizierung ordentlich verbauen
         <toolWindow id="Topic Dependencies" anchor="right" factoryClass="docs.KapaDocsTopicDependenciesToolWindowFactory"/>
         <toolWindow id="Docs" anchor="right" factoryClass="docs.KapaDocsToolWindowFactory"/>
         <projectService serviceImplementation="docs.KapaDocsService" />-->
@@ -30,5 +27,11 @@
 
     <actions>
         <!-- Add your actions here -->
+        <action id="actions.GenerateBuilderAction"
+                class="actions.GenerateBuilderAction"
+                text="Generate Builder Class"
+                description="Generate a builder class for the currently focused data class">
+            <add-to-group group-id="CodeMenu" anchor="first"/>
+        </action>
     </actions>
 </idea-plugin>
