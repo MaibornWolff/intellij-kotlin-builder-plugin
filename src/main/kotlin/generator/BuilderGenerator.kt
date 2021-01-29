@@ -29,12 +29,17 @@ object BuilderGenerator {
         val parameters = dataClass.primaryConstructorParameters
             .map { it.name!! to resolveType(it) }
 
+        val dataClassFqName = dataClass.fqName!!.asString()
+        val dataClassSimpleName = dataClass.name!!
+
+        val packageName =  dataClassFqName.substring(0, dataClassFqName.lastIndexOf('.'))
+
         val file = FileSpec.builder("", builderClassName)
             .addType(
-                TypeSpec.classBuilder(builderClassName)
+                TypeSpec.classBuilder(ClassName(packageName, builderClassName)) // TODO fix package name
                     .addPropertyFields(parameters)
-                    .addBuildFunction(dataClass, parameters)
-                    // TODO: build function
+                    .addBuildFunction(parameters, dataClassSimpleName, packageName)
+                    .addWithFunctions(parameters, builderClassName, packageName)
                     .build()
                     )
             .build()
@@ -48,13 +53,40 @@ object BuilderGenerator {
         return type ?: throw NotImplementedError("Parameter type $typeName not yet supported")
     }
 
-    fun TypeSpec.Builder.addBuildFunction(dataClass: KtClass, parameters: List<Pair<String, KClass<out Any>>>): TypeSpec.Builder {
-        val fqName = dataClass.fqName!!.asString()
-        val packageName =  fqName.substring(0, fqName.lastIndexOf('.'))
-        val simpleName = dataClass.name!!
+    fun TypeSpec.Builder.addWithFunctions(
+        parameters: List<Pair<String, KClass<out Any>>>,
+        builderClassName: String,
+        packageName: String
+    ): TypeSpec.Builder {
+        return this.apply {
+            parameters.forEach {
+                this.addWithFunction(it, builderClassName, packageName)
+            }
+        }
+    }
+
+    private fun TypeSpec.Builder.addWithFunction(
+        it: Pair<String, KClass<out Any>>,
+        builderClassName: String,
+        packageName: String
+    ): TypeSpec.Builder {
+        val (name, type) = it
+
+        return this.addFunction(FunSpec.builder("with${name.capitalize()}")
+            .returns(ClassName(packageName, builderClassName))
+            .addParameter(name, type)
+            .addStatement("return apply { this.$name = $name }")
+            .build())
+    }
+
+    fun TypeSpec.Builder.addBuildFunction(
+        parameters: List<Pair<String, KClass<out Any>>>,
+        dataClassSimpleName: String,
+        packageName: String
+    ): TypeSpec.Builder {
         return this.addFunction(FunSpec.builder("build")
-            .returns(ClassName(packageName, simpleName))
-            .addStatement("return ${simpleName}(${parameters.joinToString { (name, _) -> "$name = $name" }})")
+            .returns(ClassName(packageName, dataClassSimpleName))
+            .addStatement("return ${dataClassSimpleName}(${parameters.joinToString { (name, _) -> "$name = $name" }})")
             .build())
     }
 
