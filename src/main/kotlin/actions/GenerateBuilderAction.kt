@@ -3,24 +3,27 @@ package actions
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.psi.KtClass
 
 class GenerateBuilderAction: AnAction() {
 
+    override fun update(event: AnActionEvent) {
+        val classUnderCursor = event.dataContext.getData("psi.Element") as? KtClass
+        event.presentation.isEnabledAndVisible = classUnderCursor != null && classUnderCursor.isData()
+    }
+
     override fun actionPerformed(event: AnActionEvent) {
 
-        val element = event.dataContext.getData("psi.Element") as? PsiClass
-        if (element == null) {
+        val classUnderCursor = event.dataContext.getData("psi.Element") as? KtClass
+        if (classUnderCursor == null || !classUnderCursor.isData()) {
             Messages.showMessageDialog(event.project,
-                                       "Bitte nur in Klassen verwenden",
-                                       "Fehler",
-                                       Messages.getInformationIcon())
+                                       "Builder generation only works for Kotlin data classes",
+                                       "Builder Generator Error",
+                                       Messages.getErrorIcon())
         } else {
             Messages.showMessageDialog(event.project,
-                                       element.name,
-                                       "Dialog Title",
+                                       classUnderCursor.name,
+                                       "Generator Called Successfully",
                                        Messages.getInformationIcon())
         }
 

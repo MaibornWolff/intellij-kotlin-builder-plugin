@@ -26,13 +26,11 @@
     </projectListeners>
 
     <actions>
-        <!-- Add your actions here -->
         <action id="actions.GenerateBuilderAction"
                 class="actions.GenerateBuilderAction"
-                text="Generate Builder Class"
+                text="Builder Class"
                 description="Generate a builder class for the currently focused data class">
-            <add-to-group group-id="CodeMenu" anchor="first"/>
-            <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="actions.GenerateBuilderAction"/>
+            <add-to-group group-id="GenerateGroup" anchor="last" />
         </action>
     </actions>
 </idea-plugin>
