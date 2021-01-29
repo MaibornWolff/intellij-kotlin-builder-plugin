@@ -2,9 +2,11 @@ package actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.vfs.LocalFileSystem
 import generator.BuilderGenerator
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtUserType
@@ -51,18 +53,16 @@ class GenerateBuilderAction: AnAction() {
                 Messages.getErrorIcon()
                                       )
         } else {
-            Messages.showMessageDialog(
-                null,
-                "Generating builder for ${dataClass.name} with fields: \n" +
-                        allParameters.joinToString(separator = "\n") { (name, type) -> " - $name: $type" },
-                "Generator Called Successfully",
-                Messages.getInformationIcon()
-                                      )
 
-            val file = BuilderGenerator.generateBuilderForDataClass(dataClass)
+            val poetBuilderFileSpec = BuilderGenerator.generateBuilderForDataClass(dataClass)
 
             val moduleSourceRoot = ProjectRootManager.getInstance(project!!).fileIndex.getSourceRootForFile(dataClass.containingKtFile.virtualFile)!!.path
-            file.writeTo(File(moduleSourceRoot))
+            val sourceRootFile = File(moduleSourceRoot)
+
+            val targetFile = File(sourceRootFile, "/" + poetBuilderFileSpec.packageName + "/" + poetBuilderFileSpec.name + ".kt")
+            poetBuilderFileSpec.writeTo(targetFile.printWriter())
+
+            OpenFileDescriptor(project, LocalFileSystem.getInstance().findFileByIoFile(targetFile)!!).navigate(true)
         }
     }
 }
