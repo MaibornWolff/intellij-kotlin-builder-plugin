@@ -2,10 +2,14 @@ package actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
 import generator.BuilderGenerator
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtUserType
+import java.io.File
+
 
 class GenerateBuilderAction: AnAction() {
 
@@ -25,13 +29,13 @@ class GenerateBuilderAction: AnAction() {
                 Messages.getErrorIcon()
                                       )
         } else {
-            handleDataClassUnderCursor(classUnderCursor)
+            handleDataClassUnderCursor(classUnderCursor, event.project)
         }
     }
 
     private val allowedTypes = arrayOf("String", "Int", "Boolean")
 
-    private fun handleDataClassUnderCursor(dataClass: KtClass) {
+    private fun handleDataClassUnderCursor(dataClass: KtClass, project: Project?) {
 
         val allParameters = dataClass.primaryConstructorParameters
             .map { it.name to (it.typeReference?.typeElement as? KtUserType)?.referencedName }
@@ -55,7 +59,10 @@ class GenerateBuilderAction: AnAction() {
                 Messages.getInformationIcon()
                                       )
 
-            BuilderGenerator.generateBuilderForDataClass(dataClass)
+            val file = BuilderGenerator.generateBuilderForDataClass(dataClass)
+
+            val moduleSourceRoot = ProjectRootManager.getInstance(project!!).fileIndex.getSourceRootForFile(dataClass.containingKtFile.virtualFile)!!.path
+            file.writeTo(File(moduleSourceRoot))
         }
     }
 }

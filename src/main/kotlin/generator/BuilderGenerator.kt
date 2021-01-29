@@ -22,7 +22,7 @@ object BuilderGenerator {
                                         )
 
     // TODO: return something useful to open generated class in intellij after action
-    fun generateBuilderForDataClass(dataClass: KtClass) {
+    fun generateBuilderForDataClass(dataClass: KtClass): FileSpec {
 
         val builderClassName = dataClass.name + "Builder"
 
@@ -45,6 +45,8 @@ object BuilderGenerator {
             .build()
 
         file.writeTo(System.out)
+
+        return file
     }
 
     private fun resolveType(param: KtParameter): KClass<out Any> {
