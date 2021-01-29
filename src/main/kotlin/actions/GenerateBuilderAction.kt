@@ -16,17 +16,26 @@ class GenerateBuilderAction: AnAction() {
 
         val classUnderCursor = event.dataContext.getData("psi.Element") as? KtClass
         if (classUnderCursor == null || !classUnderCursor.isData()) {
-            Messages.showMessageDialog(event.project,
-                                       "Builder generation only works for Kotlin data classes",
-                                       "Builder Generator Error",
-                                       Messages.getErrorIcon())
+            Messages.showMessageDialog(
+                event.project,
+                "Builder generation only works for Kotlin data classes",
+                "Builder Generator Error",
+                Messages.getErrorIcon()
+                                      )
         } else {
-            Messages.showMessageDialog(event.project,
-                                       classUnderCursor.name,
-                                       "Generator Called Successfully",
-                                       Messages.getInformationIcon())
+            handleDataClassUnderCursor(classUnderCursor)
         }
-
     }
 
+    private fun handleDataClassUnderCursor(dataClass: KtClass) {
+
+        dataClass.primaryConstructor
+
+        Messages.showMessageDialog(
+            null,
+            dataClass.name,
+            "Generator Called Successfully",
+            Messages.getInformationIcon()
+                                  )
+    }
 }
