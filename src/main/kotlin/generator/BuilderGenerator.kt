@@ -14,6 +14,8 @@ object BuilderGenerator {
         "Boolean" to Boolean::class
                                          )
 
+    val supportedTypes: Collection<String> get() = supportedTypesMap.keys
+
     // TODO if there already is a default value we should not replace it
     private val defaultValuesMap = mapOf(
         String::class to "\"a string\"",
