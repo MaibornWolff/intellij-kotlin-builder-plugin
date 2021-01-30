@@ -21,7 +21,6 @@ object BuilderGenerator {
         Boolean::class to "false"
                                         )
 
-    // TODO: return something useful to open generated class in intellij after action
     fun generateBuilderForDataClass(dataClass: KtClass): FileSpec {
 
         val builderClassName = dataClass.name + "Builder"
@@ -32,19 +31,17 @@ object BuilderGenerator {
         val dataClassFqName = dataClass.fqName!!.asString()
         val dataClassSimpleName = dataClass.name!!
 
-        val packageName =  dataClassFqName.substring(0, dataClassFqName.lastIndexOf('.'))
+        val packageName = dataClassFqName.substring(0, dataClassFqName.lastIndexOf('.'))
 
-        val file = FileSpec.builder(packageName, builderClassName)
+        return FileSpec.builder(packageName, builderClassName)
             .addType(
                 TypeSpec.classBuilder(ClassName(packageName, builderClassName))
                     .addPropertyFields(parameters)
-                    .addBuildFunction(parameters, dataClassSimpleName, packageName)
-                    .addWithFunctions(parameters, builderClassName, packageName)
+                    .addBuildFunction(parameters, dataClassSimpleName)
+                    .addWithFunctions(parameters)
                     .build()
                     )
             .build()
-
-        return file
     }
 
     private fun resolveType(param: KtParameter): KClass<out Any> {
@@ -53,44 +50,36 @@ object BuilderGenerator {
         return type ?: throw NotImplementedError("Parameter type $typeName not yet supported")
     }
 
-    fun TypeSpec.Builder.addWithFunctions(
-        parameters: List<Pair<String, KClass<out Any>>>,
-        builderClassName: String,
-        packageName: String
-    ): TypeSpec.Builder {
-        return this.apply {
+    private fun TypeSpec.Builder.addWithFunctions(parameters: List<Pair<String, KClass<out Any>>>) =
+        this.apply {
             parameters.forEach {
-                this.addWithFunction(it, builderClassName, packageName)
+                this.addWithFunction(it)
             }
         }
-    }
 
-    private fun TypeSpec.Builder.addWithFunction(
-        it: Pair<String, KClass<out Any>>,
-        builderClassName: String,
-        packageName: String
-    ): TypeSpec.Builder {
+    private fun TypeSpec.Builder.addWithFunction(it: Pair<String, KClass<out Any>>): TypeSpec.Builder {
         val (name, type) = it
 
-        return this.addFunction(FunSpec.builder("with${name.capitalize()}")
-            .returns(ClassName(packageName, builderClassName))
-            .addParameter(name, type)
-            .addStatement("return apply { this.$name = $name }")
-            .build())
+        return this.addFunction(
+            FunSpec.builder("with${name.capitalize()}")
+                .addParameter(name, type)
+                .addStatement("return apply { this.$name = $name }")
+                .build()
+                               )
     }
 
-    fun TypeSpec.Builder.addBuildFunction(
+    private fun TypeSpec.Builder.addBuildFunction(
         parameters: List<Pair<String, KClass<out Any>>>,
-        dataClassSimpleName: String,
-        packageName: String
-    ): TypeSpec.Builder {
-        return this.addFunction(FunSpec.builder("build")
-            .returns(ClassName(packageName, dataClassSimpleName))
-            .addStatement("return ${dataClassSimpleName}(${parameters.joinToString { (name, _) -> "$name = $name" }})")
-            .build())
+        dataClassSimpleName: String
+                                                 ): TypeSpec.Builder {
+        return this.addFunction(
+            FunSpec.builder("build")
+                .addStatement("return ${dataClassSimpleName}(${parameters.joinToString { (name, _) -> "$name = $name" }})")
+                .build()
+                               )
     }
 
-    fun TypeSpec.Builder.addPropertyFields(parameters: List<Pair<String, KClass<out Any>>>) =
+    private fun TypeSpec.Builder.addPropertyFields(parameters: List<Pair<String, KClass<out Any>>>) =
         this.addProperties(parameters.map { (name, kclass) ->
             PropertySpec.builder(name, kclass)
                 .addModifiers(KModifier.PRIVATE)
