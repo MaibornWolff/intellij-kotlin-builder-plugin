@@ -35,37 +35,21 @@ class GenerateBuilderAction: AnAction() {
 
     private fun handleDataClassUnderCursor(dataClass: KtClass, project: Project?) {
 
-        val allParameters = dataClass.primaryConstructorParameters
-            .map { it.name to (it.typeReference?.typeElement as? KtUserType)?.referencedName }
-        val disallowedParameters = allParameters
-            .filter { (_, type) -> type !in BuilderGenerator.supportedTypes }
+        val poetBuilderFileSpec = BuilderGenerator.generateBuilderForDataClass(dataClass)
 
-        if (disallowedParameters.isNotEmpty()) {
-            Messages.showMessageDialog(
-                project!!,
-                "Builder generator currently cannot handle the following parameters: \n" +
-                        disallowedParameters.joinToString(separator = "\n") { (name, type) -> " - $name (type $type is not supported)" },
-                "Builder Generator Error",
-                Messages.getErrorIcon()
-                                      )
-        } else {
+        val targetPsiDirectory = dataClass.containingFile.containingDirectory
+        val fileName = "${poetBuilderFileSpec.name}.${KotlinFileType.EXTENSION}"
+        val fileContents = poetBuilderFileSpec.toString()
 
-            val poetBuilderFileSpec = BuilderGenerator.generateBuilderForDataClass(dataClass)
+        val existingBuilderFile = targetPsiDirectory.files.firstOrNull { it.name == fileName }
+        if (existingBuilderFile == null || getOverwriteConfirmation(project!!, fileName)) {
+            WriteCommandAction.runWriteCommandAction(project) {
+                val psiFileToOpen = if (existingBuilderFile == null)
+                    createNewFile(project, targetPsiDirectory, fileName, fileContents)
+                else
+                    overwriteFile(project, existingBuilderFile, fileContents)
 
-            val targetPsiDirectory = dataClass.containingFile.containingDirectory
-            val fileName = "${poetBuilderFileSpec.name}.${KotlinFileType.EXTENSION}"
-            val fileContents = poetBuilderFileSpec.toString()
-
-            val existingBuilderFile = targetPsiDirectory.files.firstOrNull { it.name == fileName }
-            if (existingBuilderFile == null || getOverwriteConfirmation(project!!, fileName)) {
-                WriteCommandAction.runWriteCommandAction(project) {
-                    val psiFileToOpen = if (existingBuilderFile == null)
-                        createNewFile(project, targetPsiDirectory, fileName, fileContents)
-                    else
-                        overwriteFile(project, existingBuilderFile, fileContents)
-
-                    OpenFileDescriptor(project!!, psiFileToOpen.virtualFile).navigate(true)
-                }
+                OpenFileDescriptor(project!!, psiFileToOpen.virtualFile).navigate(true)
             }
         }
     }
