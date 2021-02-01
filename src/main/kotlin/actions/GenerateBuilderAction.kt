@@ -9,10 +9,10 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
+import com.intellij.psi.codeStyle.CodeStyleManager
 import generator.BuilderGenerator
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtUserType
 
 class GenerateBuilderAction: AnAction() {
 
@@ -35,6 +35,8 @@ class GenerateBuilderAction: AnAction() {
 
     private fun handleDataClassUnderCursor(dataClass: KtClass, project: Project?) {
 
+        if (project == null) return
+
         val poetBuilderFileSpec = BuilderGenerator.generateBuilderForDataClass(dataClass)
 
         val targetPsiDirectory = dataClass.containingFile.containingDirectory
@@ -42,14 +44,16 @@ class GenerateBuilderAction: AnAction() {
         val fileContents = poetBuilderFileSpec.toString()
 
         val existingBuilderFile = targetPsiDirectory.files.firstOrNull { it.name == fileName }
-        if (existingBuilderFile == null || getOverwriteConfirmation(project!!, fileName)) {
+        if (existingBuilderFile == null || getOverwriteConfirmation(project, fileName)) {
             WriteCommandAction.runWriteCommandAction(project) {
                 val psiFileToOpen = if (existingBuilderFile == null)
                     createNewFile(project, targetPsiDirectory, fileName, fileContents)
                 else
                     overwriteFile(project, existingBuilderFile, fileContents)
 
-                OpenFileDescriptor(project!!, psiFileToOpen.virtualFile).navigate(true)
+                CodeStyleManager.getInstance(project).reformat(psiFileToOpen)
+
+                OpenFileDescriptor(project, psiFileToOpen.virtualFile).navigate(true)
             }
         }
     }
