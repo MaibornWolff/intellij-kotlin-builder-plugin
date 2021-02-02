@@ -7,7 +7,10 @@ data class Property(
     val type: Type
                    ) {
 
-    val defaultValue = defaultValuesMap[type.simpleName] ?: "TODO(\"Needs a default value!\")"
+    val defaultValue = when {
+        type.isNullable -> "null"
+        else            -> defaultValuesMap[type.simpleName] ?: "TODO(\"Needs a default value!\")"
+    }
 
     companion object {
 
@@ -22,8 +25,10 @@ data class Property(
             param: KtParameter,
             importedTypeNameToPackage: Map<String, String>
                            ) =
-            Property(name = param.name ?: throw NotImplementedError("parameter has no name, wat do"),
-                     type = Type.fromKtParameter(param, importedTypeNameToPackage))
+            Property(
+                name = param.name ?: throw NotImplementedError("parameter has no name, wat do"),
+                type = Type.fromKtParameter(param, importedTypeNameToPackage)
+                    )
     }
 }
 

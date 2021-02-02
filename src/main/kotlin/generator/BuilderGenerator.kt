@@ -59,7 +59,7 @@ object BuilderGenerator {
 
     private fun TypeSpec.Builder.addPropertyFields(properties: List<Property>) =
         this.addProperties(properties.map { property ->
-            PropertySpec.builder(property.name, property.type.className)
+            PropertySpec.builder(property.name, property.type.typeName)
                 .addModifiers(KModifier.PRIVATE)
                 .mutable()
                 .initializer(CodeBlock.of(property.defaultValue))
@@ -70,14 +70,24 @@ object BuilderGenerator {
         this.apply {
             properties.forEach {
                 this.addWithFunction(it)
+                if (it.type.isNullable) this.addWithoutFunction(it)
             }
         }
 
     private fun TypeSpec.Builder.addWithFunction(property: Property): TypeSpec.Builder {
+        val nonNullableTypeName = property.type.typeName.copy(nullable = false)
         return this.addFunction(
             FunSpec.builder("with${property.name.capitalize()}")
-                .addParameter(property.name, property.type.className)
+                .addParameter(property.name, nonNullableTypeName)
                 .addStatement("return apply { this.${property.name} = ${property.name} }")
+                .build()
+                               )
+    }
+
+    private fun TypeSpec.Builder.addWithoutFunction(property: Property): TypeSpec.Builder {
+        return this.addFunction(
+            FunSpec.builder("without${property.name.capitalize()}")
+                .addStatement("return apply { this.${property.name} = null }")
                 .build()
                                )
     }
