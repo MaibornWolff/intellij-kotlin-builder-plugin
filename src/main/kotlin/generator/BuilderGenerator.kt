@@ -7,6 +7,10 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 
 object BuilderGenerator {
 
+    private const val withFunctionPrefix = "with"
+    private const val withoutFunctionPrefix = "without"
+    private const val buildFunctionName = "build"
+
     fun generateBuilderForDataClass(dataClass: KtClass): FileSpec {
 
         val builderClassName = dataClass.name + "Builder"
@@ -77,7 +81,7 @@ object BuilderGenerator {
     private fun TypeSpec.Builder.addWithFunction(property: Property): TypeSpec.Builder {
         val nonNullableTypeName = property.type.typeName.copy(nullable = false)
         return this.addFunction(
-            FunSpec.builder("with${property.name.capitalize()}")
+            FunSpec.builder("$withFunctionPrefix${property.name.capitalize()}")
                 .addParameter(property.name, nonNullableTypeName)
                 .addStatement("return apply { this.${property.name} = ${property.name} }")
                 .build()
@@ -86,7 +90,7 @@ object BuilderGenerator {
 
     private fun TypeSpec.Builder.addWithoutFunction(property: Property): TypeSpec.Builder {
         return this.addFunction(
-            FunSpec.builder("without${property.name.capitalize()}")
+            FunSpec.builder("$withoutFunctionPrefix${property.name.capitalize()}")
                 .addStatement("return apply { this.${property.name} = null }")
                 .build()
                                )
@@ -97,7 +101,7 @@ object BuilderGenerator {
         dataClassSimpleName: String
                                                  ): TypeSpec.Builder {
         return this.addFunction(
-            FunSpec.builder("build")
+            FunSpec.builder(buildFunctionName)
                 .addStatement("return ${dataClassSimpleName}(${parameters.joinToString { "${it.name} = ${it.name}" }})")
                 .build()
                                )
