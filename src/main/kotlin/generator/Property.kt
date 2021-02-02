@@ -19,6 +19,10 @@ data class Property(
             "Int" to "42",
             "Boolean" to "false",
             "Long" to "23L",
+            "List" to "emptyList()",
+            "Map" to "emptyMap()",
+            "Set" to "emptySet()",
+            "Array" to "emptyArray()"
                                     )
 
         fun fromKtParameter(
