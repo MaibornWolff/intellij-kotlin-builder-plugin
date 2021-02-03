@@ -16,8 +16,8 @@
     <depends>org.jetbrains.kotlin</depends>
 
     <actions>
-        <action id="actions.GenerateBuilderAction"
-                class="actions.GenerateBuilderAction"
+        <action id="de.maibornwolff.its.buildergenerator.actions.GenerateBuilderAction"
+                class="de.maibornwolff.its.buildergenerator.actions.GenerateBuilderAction"
                 text="Builder Class"
                 description="Generate a builder class for the currently focused data class">
             <add-to-group group-id="GenerateGroup" anchor="last" />

@@ -1,4 +1,4 @@
-package generator
+package de.maibornwolff.its.buildergenerator.generator
 
 import org.jetbrains.kotlin.psi.KtParameter
 

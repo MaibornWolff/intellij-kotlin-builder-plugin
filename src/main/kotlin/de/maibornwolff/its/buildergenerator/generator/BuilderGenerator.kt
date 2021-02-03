@@ -1,4 +1,4 @@
-package generator
+package de.maibornwolff.its.buildergenerator.generator
 
 import com.intellij.psi.PsiClass
 import com.squareup.kotlinpoet.*

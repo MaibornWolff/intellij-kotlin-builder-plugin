@@ -1,4 +1,4 @@
-package actions
+package de.maibornwolff.its.buildergenerator.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -10,8 +10,8 @@ import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.codeStyle.CodeStyleManager
-import generator.BuilderGenerator
-import generator.GeneratorConfig
+import de.maibornwolff.its.buildergenerator.generator.BuilderGenerator
+import de.maibornwolff.its.buildergenerator.generator.GeneratorConfig
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 

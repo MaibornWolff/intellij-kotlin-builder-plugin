@@ -1,4 +1,4 @@
-package generator
+package de.maibornwolff.its.buildergenerator.generator
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
