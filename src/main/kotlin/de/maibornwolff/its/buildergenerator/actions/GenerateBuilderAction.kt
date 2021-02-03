@@ -11,7 +11,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.codeStyle.CodeStyleManager
 import de.maibornwolff.its.buildergenerator.generator.BuilderGenerator
-import de.maibornwolff.its.buildergenerator.generator.GeneratorConfig
+import de.maibornwolff.its.buildergenerator.settings.AppSettingsState
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 
@@ -38,7 +38,7 @@ class GenerateBuilderAction: AnAction() {
 
         if (project == null) return
 
-        val currentConfig = GeneratorConfig() // TODO load config from settings
+        val currentConfig = AppSettingsState.getInstance().config
         val generatorOutput = BuilderGenerator(currentConfig).generateBuilderForDataClass(dataClass)
 
         val targetPsiDirectory = dataClass.containingFile.containingDirectory

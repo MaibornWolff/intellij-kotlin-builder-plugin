@@ -24,4 +24,12 @@
         </action>
     </actions>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="de.maibornwolff.its.buildergenerator.settings.AppSettingsState"/>
+        <applicationConfigurable parentId="tools"
+                                 instance="de.maibornwolff.its.buildergenerator.settings.AppSettingsConfigurable"
+                                 id="de.maibornwolff.its.buildergenerator.settings.AppSettingsConfigurable"
+                                 displayName="Kotlin Builder Generator"/>
+    </extensions>
+
 </idea-plugin>
