@@ -11,6 +11,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.codeStyle.CodeStyleManager
 import generator.BuilderGenerator
+import generator.GeneratorConfig
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 
@@ -37,11 +38,12 @@ class GenerateBuilderAction: AnAction() {
 
         if (project == null) return
 
-        val poetBuilderFileSpec = BuilderGenerator.generateBuilderForDataClass(dataClass)
+        val currentConfig = GeneratorConfig() // TODO load config from settings
+        val generatorOutput = BuilderGenerator(currentConfig).generateBuilderForDataClass(dataClass)
 
         val targetPsiDirectory = dataClass.containingFile.containingDirectory
-        val fileName = "${poetBuilderFileSpec.name}.${KotlinFileType.EXTENSION}"
-        val fileContents = poetBuilderFileSpec.toString()
+        val fileName = "${generatorOutput.name}.${KotlinFileType.EXTENSION}"
+        val fileContents = generatorOutput.toString()
 
         val existingBuilderFile = targetPsiDirectory.files.firstOrNull { it.name == fileName }
         if (existingBuilderFile == null || getOverwriteConfirmation(project, fileName)) {

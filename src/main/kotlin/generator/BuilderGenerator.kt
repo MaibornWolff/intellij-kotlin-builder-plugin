@@ -5,29 +5,26 @@ import com.squareup.kotlinpoet.*
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtImportDirective
 
-object BuilderGenerator {
+class BuilderGenerator(private val config: GeneratorConfig) {
 
-    private const val withFunctionPrefix = "with"
-    private const val withoutFunctionPrefix = "without"
-    private const val buildFunctionName = "build"
+    fun generateBuilderForDataClass(builtClass: KtClass): FileSpec {
 
-    fun generateBuilderForDataClass(dataClass: KtClass): FileSpec {
+        val builderClassName = builtClass.name + config.builderClassSuffix
 
-        val builderClassName = dataClass.name + "Builder"
-
-        val dataClassFqName = dataClass.fqName!!.asString()
-        val dataClassSimpleName = dataClass.name!!
+        val dataClassFqName = builtClass.fqName!!.asString()
+        val dataClassSimpleName = builtClass.name!!
         val packageName = dataClassFqName.getPathFromFqName()
 
         val knownTypeNameToPackageMap =
-            generateImportedTypesMap(dataClass.containingKtFile.importDirectives) +
-                    generateClassesInFileMap(dataClass.containingKtFile.classes
-                                                 .filterNot { it.name!!.endsWith("Kt") }
-                                                 .toTypedArray(),
-                                             packageName)
+            generateImportedTypesMap(builtClass.containingKtFile.importDirectives) +
+                    generateClassesInFileMap(
+                        classes = builtClass.containingKtFile.classes
+                            .filterNot { it.name!!.endsWith("Kt") },
+                        packageName = packageName
+                                            )
 
-        val properties =
-            dataClass.primaryConstructorParameters.map { Property.fromKtParameter(it, knownTypeNameToPackageMap) }
+        val properties = builtClass.primaryConstructorParameters
+            .map { Property.fromKtParameter(it, knownTypeNameToPackageMap) }
 
         return FileSpec.builder(packageName, builderClassName)
             .addImports(knownTypeNameToPackageMap)
@@ -52,7 +49,7 @@ object BuilderGenerator {
             }
             .toMap()
 
-    private fun generateClassesInFileMap(classes: Array<PsiClass>, packageName: String) =
+    private fun generateClassesInFileMap(classes: Collection<PsiClass>, packageName: String) =
         classes.map { it.name!! to packageName }.toMap()
 
     private fun FileSpec.Builder.addImports(imports: Map<String, String>) = this.apply {
@@ -81,7 +78,7 @@ object BuilderGenerator {
     private fun TypeSpec.Builder.addWithFunction(property: Property): TypeSpec.Builder {
         val nonNullableTypeName = property.type.typeName.copy(nullable = false)
         return this.addFunction(
-            FunSpec.builder("$withFunctionPrefix${property.name.capitalize()}")
+            FunSpec.builder("${config.withFunctionPrefix}${property.name.capitalize()}")
                 .addParameter(property.name, nonNullableTypeName)
                 .addStatement("return apply { this.${property.name} = ${property.name} }")
                 .build()
@@ -90,7 +87,7 @@ object BuilderGenerator {
 
     private fun TypeSpec.Builder.addWithoutFunction(property: Property): TypeSpec.Builder {
         return this.addFunction(
-            FunSpec.builder("$withoutFunctionPrefix${property.name.capitalize()}")
+            FunSpec.builder("${config.withoutFunctionPrefix}${property.name.capitalize()}")
                 .addStatement("return apply { this.${property.name} = null }")
                 .build()
                                )
@@ -98,11 +95,11 @@ object BuilderGenerator {
 
     private fun TypeSpec.Builder.addBuildFunction(
         parameters: List<Property>,
-        dataClassSimpleName: String
+        builtClassSimpleName: String
                                                  ): TypeSpec.Builder {
         return this.addFunction(
-            FunSpec.builder(buildFunctionName)
-                .addStatement("return ${dataClassSimpleName}(${parameters.joinToString { "${it.name} = ${it.name}" }})")
+            FunSpec.builder(config.buildFunctionName)
+                .addStatement("return ${builtClassSimpleName}(${parameters.joinToString(separator = ",\n") { "${it.name} = ${it.name}" }})")
                 .build()
                                )
     }
