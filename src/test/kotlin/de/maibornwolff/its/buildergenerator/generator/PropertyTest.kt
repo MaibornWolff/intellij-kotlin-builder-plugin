@@ -1,8 +1,7 @@
-package generator
+package de.maibornwolff.its.buildergenerator.generator
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import de.maibornwolff.its.buildergenerator.generator.Property
 import org.jetbrains.kotlin.psi.KtParameter
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows

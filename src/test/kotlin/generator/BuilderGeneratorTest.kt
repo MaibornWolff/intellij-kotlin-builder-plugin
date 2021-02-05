@@ -1,3 +1,0 @@
-package generator
-
-internal class BuilderGeneratorTest
