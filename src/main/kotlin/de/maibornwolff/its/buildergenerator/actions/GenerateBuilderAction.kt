@@ -2,90 +2,81 @@ package de.maibornwolff.its.buildergenerator.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiDirectory
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiFileFactory
-import com.intellij.psi.codeStyle.CodeStyleManager
 import de.maibornwolff.its.buildergenerator.generator.BuilderGenerator
+import de.maibornwolff.its.buildergenerator.service.FileService
 import de.maibornwolff.its.buildergenerator.settings.AppSettingsState
+import de.maibornwolff.its.buildergenerator.util.getContainingDirectory
+import de.maibornwolff.its.buildergenerator.util.getClassUnderCaret
+import de.maibornwolff.its.buildergenerator.util.isNonNullDataClass
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
+import org.slf4j.LoggerFactory
+import kotlin.contracts.ExperimentalContracts
 
 class GenerateBuilderAction: AnAction() {
 
+    private val LOGGER = LoggerFactory.getLogger(GenerateBuilderAction::class.java)
+
     // TODO implement a check which makes the action invisible when caret is not on a valid class
 
+    @ExperimentalContracts
     override fun actionPerformed(event: AnActionEvent) {
-
-        val classUnderCursor = event.dataContext.getData("psi.Element") as? KtClass
-        if (classUnderCursor == null || !classUnderCursor.isData()) {
-            Messages.showMessageDialog(
-                event.project,
-                "Builder generation only works for Kotlin data classes",
-                "Builder Generator Error",
-                Messages.getErrorIcon()
-                                      )
-        } else {
-            handleDataClassUnderCursor(classUnderCursor, event.project)
-        }
+        event.project?.let {
+            val classUnderCaret = event.getClassUnderCaret()
+            if (classUnderCaret.isNonNullDataClass()) {
+                generateBuilder(classUnderCaret, it)
+            } else {
+                showOnlyDataClassesAllowedMessage(it)
+            }
+        } ?: LOGGER.warn("no project")
     }
 
-    private fun handleDataClassUnderCursor(dataClass: KtClass, project: Project?) {
-
-        if (project == null) return
-
+    private fun generateBuilder(dataClass: KtClass, project: Project) {
         val currentConfig = AppSettingsState.getInstance().config
-        val generatorOutput = BuilderGenerator(currentConfig).generateBuilderForDataClass(dataClass)
+        val builderSpec = BuilderGenerator(currentConfig).generateBuilderForDataClass(dataClass)
+        val builderDirectory = dataClass.getContainingDirectory()
+        val builderFileName = "${builderSpec.name}.${KotlinFileType.EXTENSION}"
+        val builderFileContents = builderSpec.toString()
+        val fileService = project.service<FileService>()
+        overwriteWithPromptAndOpen(project, fileService, builderDirectory, builderFileName, builderFileContents)
+    }
 
-        val targetPsiDirectory = dataClass.containingFile.containingDirectory
-        val fileName = "${generatorOutput.name}.${KotlinFileType.EXTENSION}"
-        val fileContents = generatorOutput.toString()
-
-        val existingBuilderFile = targetPsiDirectory.files.firstOrNull { it.name == fileName }
+    private fun overwriteWithPromptAndOpen(project: Project, fileService: FileService, directory: PsiDirectory, fileName: String, contents: String) {
+        val existingBuilderFile = fileService.getFileOrNull(directory, fileName)
         if (existingBuilderFile == null || getOverwriteConfirmation(project, fileName)) {
-            WriteCommandAction.runWriteCommandAction(project) {
+            fileService.withWriter {
                 val psiFileToOpen = if (existingBuilderFile == null)
-                    createNewFile(project, targetPsiDirectory, fileName, fileContents)
+                    this.createFile(directory, fileName, contents)
                 else
-                    overwriteFile(project, existingBuilderFile, fileContents)
-
-                CodeStyleManager.getInstance(project).reformat(psiFileToOpen)
-
-                OpenFileDescriptor(project, psiFileToOpen.virtualFile).navigate(true)
+                    this.overwriteFile(existingBuilderFile, contents)
+                this.reformat(psiFileToOpen)
+                this.openInTab(psiFileToOpen)
             }
         }
     }
 
+    private fun showOnlyDataClassesAllowedMessage(project: Project) {
+        Messages.showMessageDialog(
+                project,
+                "Builder generation only works for Kotlin data classes",
+                "Builder Generator Error",
+                Messages.getErrorIcon()
+        )
+    }
+
     private fun getOverwriteConfirmation(project: Project, fileName: String): Boolean {
         val result = Messages.showOkCancelDialog(
-            project,
-            "Target file '$fileName' already exists and will be overwritten. Continue?",
-            "Overwrite Existing File?", "Overwrite", "Cancel",
-            Messages.getWarningIcon()
-                                                )
+                project,
+                "Target file '$fileName' already exists and will be overwritten. Continue?",
+                "Overwrite Existing File?", "Overwrite", "Cancel",
+                Messages.getWarningIcon()
+        )
 
         return result == Messages.OK
     }
 
-    private fun createNewFile(
-        project: Project?,
-        targetPsiDirectory: PsiDirectory,
-        fileName: String,
-        fileContents: String
-                             ): PsiFile {
-        val inMemoryPsiFile = PsiFileFactory.getInstance(project)
-            .createFileFromText(fileName, KotlinFileType.INSTANCE, fileContents)
-        return targetPsiDirectory.add(inMemoryPsiFile) as PsiFile
-    }
-
-    private fun overwriteFile(project: Project?, file: PsiFile, fileContents: String): PsiFile {
-        val containingDirectory = file.containingDirectory
-        val fileName = file.name
-        file.delete()
-        return createNewFile(project, containingDirectory, fileName, fileContents)
-    }
 }

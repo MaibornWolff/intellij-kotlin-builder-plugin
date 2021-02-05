@@ -30,6 +30,9 @@
                                  instance="de.maibornwolff.its.buildergenerator.settings.AppSettingsConfigurable"
                                  id="de.maibornwolff.its.buildergenerator.settings.AppSettingsConfigurable"
                                  displayName="Kotlin Builder Generator"/>
+
+        <projectService serviceInterface="de.maibornwolff.its.buildergenerator.service.FileService"
+                        serviceImplementation="de.maibornwolff.its.buildergenerator.service.FileServiceImpl" />
     </extensions>
 
 </idea-plugin>
