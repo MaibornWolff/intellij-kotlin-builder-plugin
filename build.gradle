@@ -16,7 +16,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation("com.squareup:kotlinpoet:1.7.2")
     compileOnly "org.jetbrains.kotlin:kotlin-compiler"
-    implementation "org.jetbrains.kotlin:kotlin-compiler"
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
     testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
