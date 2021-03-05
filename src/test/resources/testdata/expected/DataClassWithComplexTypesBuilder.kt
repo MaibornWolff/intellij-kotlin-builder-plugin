@@ -1,5 +1,10 @@
 package testdata
 
+import kotlin.Int
+import kotlin.String
+import kotlin.collections.List
+import kotlin.collections.Map
+
 public class DataClassWithComplexTypesBuilder {
 
     private var property1: PropertyType1 = TODO("Needs a default value!")

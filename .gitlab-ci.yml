@@ -38,3 +38,6 @@ test:
     paths:
       - build
       - .gradle
+  artifacts:
+    paths:
+      - builds/reports/tests/**/*

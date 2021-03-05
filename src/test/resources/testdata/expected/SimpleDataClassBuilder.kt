@@ -1,5 +1,9 @@
 package testdata
 
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.String
+
 public class SimpleDataClassBuilder {
     private var intProperty: Int = 42
 
