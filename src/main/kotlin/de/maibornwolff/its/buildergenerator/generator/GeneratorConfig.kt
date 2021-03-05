@@ -1,8 +1,8 @@
 package de.maibornwolff.its.buildergenerator.generator
 
 data class GeneratorConfig(
-    val builderClassSuffix: String = "Builder",
-    val withFunctionPrefix: String = "with",
-    val withoutFunctionPrefix: String = "without",
-    val buildFunctionName: String = "build",
+    var builderClassSuffix: String = "Builder",
+    var withFunctionPrefix: String = "with",
+    var withoutFunctionPrefix: String = "without",
+    var buildFunctionName: String = "build",
                           )
