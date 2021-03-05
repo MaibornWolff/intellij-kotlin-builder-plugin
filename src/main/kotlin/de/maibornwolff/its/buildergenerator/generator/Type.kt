@@ -3,11 +3,8 @@ package de.maibornwolff.its.buildergenerator.generator
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
-import org.jetbrains.kotlin.psi.KtNullableType
-import org.jetbrains.kotlin.psi.KtParameter
-import org.jetbrains.kotlin.psi.KtTypeElement
-import org.jetbrains.kotlin.psi.KtUserType
-import org.jetbrains.kotlin.utils.keysToMap
+import org.jetbrains.kotlin.idea.refactoring.fqName.fqName
+import org.jetbrains.kotlin.types.KotlinType
 
 data class Type(
     val simpleName: String,
@@ -18,50 +15,18 @@ data class Type(
 
     companion object {
 
-        private val knownCollectionTypes = listOf("List", "Set", "Map", "Array")
+        fun fromKotlinType(type: KotlinType): Type {
+            val simpleName = type.fqName?.shortName()?.asString()
+                ?: throw NotImplementedError("Type has no FQ name: $type")
+            val packageName = type.fqName?.parent()?.toString() ?: ""
 
-        fun fromKtParameter(
-            param: KtParameter,
-            importedTypeNameToPackage: Map<String, String>
-                           ) =
-            fromTypeElement(param.typeReference?.typeElement,
-                            importedTypeNameToPackage +
-                                    knownCollectionTypes.keysToMap { "kotlin.collections" })
-
-        private fun fromTypeElement(
-            typeElement: KtTypeElement?,
-            importedTypeNameToPackage: Map<String, String>
-                                   ): Type {
-            return when (typeElement) {
-                is KtUserType -> fromUserType(typeElement, importedTypeNameToPackage)
-
-                is KtNullableType -> fromTypeElement(
-                    typeElement.innerType,
-                    importedTypeNameToPackage
-                                                    ).copy(isNullable = true)
-
-                else -> throw NotImplementedError("unknown typeElement")
-            }
+            return Type(
+                simpleName = simpleName,
+                packageName = packageName,
+                isNullable = type.isMarkedNullable,
+                typeArguments = type.arguments.map { fromKotlinType(it.type) }
+                       )
         }
-
-        private fun fromUserType(
-            userType: KtUserType,
-            importedTypeNameToPackage: Map<String, String>,
-            isNullable: Boolean = false
-                                ) =
-            userType.referencedName?.let { referencedName ->
-                Type(
-                    simpleName = referencedName,
-                    packageName = importedTypeNameToPackage[referencedName] ?: "kotlin",
-                    isNullable = isNullable,
-                    typeArguments = userType.typeArguments.mapNotNull { typeProjection ->
-                        typeProjection.typeReference?.typeElement?.let {
-                            fromTypeElement(it, importedTypeNameToPackage)
-                        }
-                    }
-                    )
-            }
-                ?: throw NotImplementedError("ktUserType?.referencedName is null, wat do")
     }
 
     val typeName: TypeName =

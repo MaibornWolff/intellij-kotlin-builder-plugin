@@ -1,6 +1,6 @@
 package de.maibornwolff.its.buildergenerator.generator
 
-import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 
 data class Property(
     val name: String,
@@ -25,14 +25,12 @@ data class Property(
             "Array" to "emptyArray()"
                                     )
 
-        fun fromKtParameter(
-            param: KtParameter,
-            importedTypeNameToPackage: Map<String, String>
-                           ) =
+        fun fromParameterDescriptor(param: ParameterDescriptor) =
             Property(
-                name = param.name ?: throw NotImplementedError("parameter has no name, wat do"),
-                type = Type.fromKtParameter(param, importedTypeNameToPackage)
+                name = param.name.asString(),
+                type = Type.fromKotlinType(param.type)
                     )
+                .takeIf { it.name != "<this>" }
     }
 }
 

@@ -1,33 +1,29 @@
 package de.maibornwolff.its.buildergenerator.generator
 
-import com.intellij.psi.PsiClass
 import com.squareup.kotlinpoet.*
+import org.jetbrains.kotlin.backend.common.descriptors.allParameters
+import org.jetbrains.kotlin.idea.caches.resolve.analyzeWithContent
 import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtImportDirective
+import org.jetbrains.kotlin.resolve.BindingContext
 
 class BuilderGenerator(private val config: GeneratorConfig) {
 
     fun generateBuilderForDataClass(builtClass: KtClass): FileSpec {
 
+        val bindingContext = builtClass.containingKtFile.analyzeWithContent()
+
+        val builtClassDescriptor = bindingContext.get(BindingContext.CLASS, builtClass)
+            ?: throw RuntimeException("Cannot get descriptor for the built class, wtf")
+
         val builderClassName = builtClass.name + config.builderClassSuffix
+        val dataClassSimpleName = builtClass.fqName!!.shortName().asString()
+        val packageName = builtClass.fqName!!.parent().asString()
 
-        val dataClassFqName = builtClass.fqName!!.asString()
-        val dataClassSimpleName = builtClass.name!!
-        val packageName = dataClassFqName.getPathFromFqName()
-
-        val knownTypeNameToPackageMap =
-            generateImportedTypesMap(builtClass.containingKtFile.importDirectives) +
-                    generateClassesInFileMap(
-                        classes = builtClass.containingKtFile.classes
-                            .filterNot { it.name!!.endsWith("Kt") },
-                        packageName = packageName
-                                            )
-
-        val properties = builtClass.primaryConstructorParameters
-            .map { Property.fromKtParameter(it, knownTypeNameToPackageMap) }
+        val properties = builtClassDescriptor.unsubstitutedPrimaryConstructor?.allParameters
+            ?.mapNotNull { Property.fromParameterDescriptor(it) }
+            ?: throw NotImplementedError("Class descriptor has no primary constructor for us to work with")
 
         return FileSpec.builder(packageName, builderClassName)
-            .addImports(knownTypeNameToPackageMap)
             .addType(
                 TypeSpec.classBuilder(ClassName(packageName, builderClassName))
                     .addPropertyFields(properties)
@@ -36,26 +32,6 @@ class BuilderGenerator(private val config: GeneratorConfig) {
                     .build()
                     )
             .build()
-    }
-
-    private fun String.getPathFromFqName() = this.substring(0, this.lastIndexOf('.'))
-
-    private fun generateImportedTypesMap(importDirectives: List<KtImportDirective>) =
-        importDirectives
-            .mapNotNull { importDirective ->
-                importDirective.importPath?.let { path ->
-                    path.importedName!!.asString() to path.fqName.asString().getPathFromFqName()
-                }
-            }
-            .toMap()
-
-    private fun generateClassesInFileMap(classes: Collection<PsiClass>, packageName: String) =
-        classes.map { it.name!! to packageName }.toMap()
-
-    private fun FileSpec.Builder.addImports(imports: Map<String, String>) = this.apply {
-        imports.forEach { (name, path) ->
-            this.addImport(path, name)
-        }
     }
 
     private fun TypeSpec.Builder.addPropertyFields(properties: List<Property>) =
