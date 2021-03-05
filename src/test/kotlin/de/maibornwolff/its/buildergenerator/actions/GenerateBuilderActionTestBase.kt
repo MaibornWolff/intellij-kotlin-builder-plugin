@@ -26,7 +26,9 @@ abstract class GenerateBuilderActionTestBase: BasePlatformTestCase() {
     override fun getTestDataPath(): String =
         File(this::class.java.getResource("/testdata/SimpleDataClass.kt").toURI()).parent
 
-    protected fun testBuilderGeneratedCorrectlyForDataClass(dataClassUnderTest: String, caretOffsetOnDataClassName: Int) {
+    protected fun testBuilderGeneratedCorrectlyForDataClass(dataClassUnderTest: String,
+                                                            caretOffsetOnDataClassName: Int,
+                                                            builderSuffix: String = "Builder") {
         // arrange
         val inputFile = "$dataClassUnderTest.kt"
         myFixture.configureByFile(inputFile)
@@ -37,11 +39,11 @@ abstract class GenerateBuilderActionTestBase: BasePlatformTestCase() {
 
         // assert
         val generatedBuilderFile =
-            myFixture.file.containingDirectory.files.singleOrNull { it.name == "${dataClassUnderTest}Builder.kt" }
+            myFixture.file.containingDirectory.files.singleOrNull { it.name == "$dataClassUnderTest$builderSuffix.kt" }
         assertThat(generatedBuilderFile).isNotNull
 
         val generatedBuilderCode = VfsUtil.loadText(generatedBuilderFile!!.virtualFile)
-        val expectedBuilderCode = File("$testDataPath/expected/${dataClassUnderTest}Builder.kt").readText()
+        val expectedBuilderCode = File("$testDataPath/expected/$dataClassUnderTest$builderSuffix.kt").readText()
         assertThat(generatedBuilderCode).isEqualToIgnoringWhitespace(expectedBuilderCode)
     }
 
