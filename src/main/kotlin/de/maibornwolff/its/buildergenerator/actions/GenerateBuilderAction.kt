@@ -9,7 +9,6 @@ import com.intellij.psi.PsiDirectory
 import de.maibornwolff.its.buildergenerator.generator.BuilderGenerator
 import de.maibornwolff.its.buildergenerator.service.FileService
 import de.maibornwolff.its.buildergenerator.settings.AppSettingsState
-import de.maibornwolff.its.buildergenerator.util.getContainingDirectory
 import de.maibornwolff.its.buildergenerator.util.getClassUnderCaret
 import de.maibornwolff.its.buildergenerator.util.isNonNullDataClass
 import org.jetbrains.kotlin.idea.KotlinFileType
@@ -38,7 +37,7 @@ class GenerateBuilderAction: AnAction() {
     private fun generateBuilder(dataClass: KtClass, project: Project) {
         val currentConfig = AppSettingsState.getInstance().config
         val builderSpec = BuilderGenerator(currentConfig).generateBuilderForDataClass(dataClass)
-        val builderDirectory = dataClass.getContainingDirectory()
+        val builderDirectory = SourceRootChoice.chooseTargetDirectory(dataClass, project)
         val builderFileName = "${builderSpec.name}.${KotlinFileType.EXTENSION}"
         val builderFileContents = builderSpec.toString()
         val fileService = project.service<FileService>()

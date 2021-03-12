@@ -1,5 +1,6 @@
 package de.maibornwolff.its.buildergenerator.actions
 
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TestDialog
 import com.intellij.openapi.ui.TestDialogManager
 import com.intellij.openapi.vfs.VfsUtil

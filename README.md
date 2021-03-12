@@ -18,10 +18,10 @@ This plugin for IntelliJ IDEA provides a quick way to implement a (simplified) B
 - Pre-set default values for any primitive, nullable and collection properties
 - Generated `withoutX()` methods for nullable properties
 - Customizable builder class and method names via plugin configuration
+- Selectable placement of builder class in production or test sources
 
 ### *Work in progress:*
 
-- *Selectable placement of builder class in production or test sources*
 - *Generated methods to add items to collection properties*
 - *Automatic wrapping/unwrapping of "wrapped primitive"-type properties*
 - *Detection and usage of existing builders for property types*

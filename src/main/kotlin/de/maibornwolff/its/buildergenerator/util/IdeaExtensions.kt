@@ -1,6 +1,7 @@
 package de.maibornwolff.its.buildergenerator.util
 
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.psi.PsiDirectory
 import org.jetbrains.kotlin.psi.KtClass
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -15,4 +16,4 @@ fun KtClass?.isNonNullDataClass(): Boolean {
     return this != null && this.isData()
 }
 
-fun KtClass.getContainingDirectory() = this.containingFile.containingDirectory
+fun KtClass.getContainingDirectory(): PsiDirectory = this.containingFile.containingDirectory

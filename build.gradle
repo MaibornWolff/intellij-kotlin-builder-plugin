@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'de.maibornwolff.its'
-version '0.1.0'
+version '0.1.1'
 
 repositories {
     mavenCentral()
@@ -34,11 +34,11 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 patchPluginXml {
-    changeNotes ""
+    changeNotes """ - If module contains multiple source roots, prompt to choose where to place the builder class."""
 }
 
 javafx {
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
 }
 
 tasks {
