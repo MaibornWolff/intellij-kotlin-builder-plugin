@@ -56,7 +56,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
         return this.addFunction(
             FunSpec.builder("${config.withFunctionPrefix}${property.name.capitalize()}")
                 .addParameter(property.name, nonNullableTypeName)
-                .addStatement("return apply { this.${property.name} = ${property.name} }")
+                .addStatement("return·apply·{ this.${property.name}·= ${property.name} }")
                 .build()
                                )
     }
@@ -64,7 +64,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
     private fun TypeSpec.Builder.addWithoutFunction(property: Property): TypeSpec.Builder {
         return this.addFunction(
             FunSpec.builder("${config.withoutFunctionPrefix}${property.name.capitalize()}")
-                .addStatement("return apply { this.${property.name} = null }")
+                .addStatement("return·apply·{ this.${property.name}·= null }")
                 .build()
                                )
     }
@@ -75,7 +75,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
                                                  ): TypeSpec.Builder {
         return this.addFunction(
             FunSpec.builder(config.buildFunctionName)
-                .addStatement("return ${builtClassSimpleName}(${parameters.joinToString(separator = ",\n") { "${it.name} = ${it.name}" }})")
+                .addStatement("return·${builtClassSimpleName}(${parameters.joinToString(separator = ",\n") { "${it.name}·= ${it.name}" }})")
                 .build()
                                )
     }

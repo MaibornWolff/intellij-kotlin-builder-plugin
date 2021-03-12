@@ -9,13 +9,13 @@ data class Property(
 
     val defaultValue = when {
         type.isNullable -> "null"
-        else            -> defaultValuesMap[type.simpleName] ?: "TODO(\"Needs a default value!\")"
+        else            -> defaultValuesMap[type.simpleName] ?: "TODO(\"Needs·a·default·value!\")"
     }
 
     companion object {
 
         val defaultValuesMap = mapOf(
-            "String" to "\"a string\"",
+            "String" to "\"a·string\"",
             "Int" to "42",
             "Boolean" to "false",
             "Long" to "23L",
