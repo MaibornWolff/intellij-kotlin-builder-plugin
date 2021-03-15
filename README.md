@@ -28,9 +28,7 @@ This plugin for IntelliJ IDEA provides a quick way to implement a (simplified) B
 
 ## Setup
 
-Download the latest `kotlin-builder-generator-plugin-<VERSION>.zip` from the [pipeline artifacts](https://git.maibornwolff.de/intellij-kotlin-builder-plugin/intellij-kotlin-builder-plugin/-/pipelines). 
-
-> Either download all artifacts from the latest pipeline and extract the file from the archive, or click through to the latest `build` job and browse the artifacts there to download only the necessary file. 
+Download the latest `kotlin-builder-generator-plugin-<VERSION>.zip` from the [releases page](https://github.com/MaibornWolff/intellij-kotlin-builder-plugin/releases/). 
 
 Install in your IntelliJ instance via `File -> Settings -> Plugins -> [...] -> Install Plugin from Disk`.
 

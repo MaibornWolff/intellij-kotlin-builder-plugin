@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>de.maibornwolff.its.intellij-kotlin-builder</id>
     <name>Kotlin Builder Generator</name>
-    <vendor url="https://www.maibornwolff.de">MaibornWolff Open Source Community</vendor>
+    <vendor url="https://github.com/MaibornWolff/intellij-kotlin-builder-plugin">MaibornWolff Open Source Community</vendor>
 
     <description><![CDATA[
     Provides a quick way to implement a (simplified) Builder pattern for a given Kotlin data class.
