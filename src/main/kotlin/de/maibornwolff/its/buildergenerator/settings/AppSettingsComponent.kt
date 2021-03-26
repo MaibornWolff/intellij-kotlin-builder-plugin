@@ -16,16 +16,16 @@ class AppSettingsComponent {
     private val txtBuildFunctionName = JBTextField()
 
     private val mainPanel = FormBuilder.createFormBuilder()
-        .addLabeledComponent("ClassBuilder class name suffix: ", txtBuilderClassSuffix, 1)
-        .addTooltip("Suffix is added to the end of target class name.")
-        .addSeparator()
-        .addLabeledComponent("build() function name: ", txtBuildFunctionName)
-        .addSeparator()
-        .addLabeledComponent("withProperty(value: Type) function prefix: ", txtWithFunctionPrefix)
-        .addLabeledComponent("withoutProperty() function prefix: ", txtWithoutFunctionPrefix)
-        .addTooltip("withoutProperty() functions are generated for Nullable properties, to set their value to null.")
-        .addComponentFillVertically(JLabel(""), 0)
-        .panel
+            .addLabeledComponent("ClassBuilder class name suffix: ", txtBuilderClassSuffix, 1)
+            .addTooltip("Suffix is added to the end of target class name.")
+            .addSeparator()
+            .addLabeledComponent("build() function name: ", txtBuildFunctionName)
+            .addSeparator()
+            .addLabeledComponent("withProperty(value: Type) function prefix: ", txtWithFunctionPrefix)
+            .addLabeledComponent("withoutProperty() function prefix: ", txtWithoutFunctionPrefix)
+            .addTooltip("withoutProperty() functions are generated for Nullable properties, to set their value to null.")
+            .addComponentFillVertically(JLabel(""), 0)
+            .panel
 
     val panel: JPanel get() = mainPanel
 
@@ -36,11 +36,8 @@ class AppSettingsComponent {
         txtBuildFunctionName.text = config.buildFunctionName
     }
 
-    fun getValues() = GeneratorConfig(
-        builderClassSuffix = txtBuilderClassSuffix.text,
-        withFunctionPrefix = txtWithFunctionPrefix.text,
-        withoutFunctionPrefix = txtWithoutFunctionPrefix.text,
-        buildFunctionName = txtBuildFunctionName.text,
-                                     )
-
+    fun getValues() = GeneratorConfig(builderClassSuffix = txtBuilderClassSuffix.text,
+                                      withFunctionPrefix = txtWithFunctionPrefix.text,
+                                      withoutFunctionPrefix = txtWithoutFunctionPrefix.text,
+                                      buildFunctionName = txtBuildFunctionName.text)
 }

@@ -6,34 +6,30 @@ import com.squareup.kotlinpoet.TypeName
 import org.jetbrains.kotlin.idea.refactoring.fqName.fqName
 import org.jetbrains.kotlin.types.KotlinType
 
-data class Type(
-    val simpleName: String,
-    val packageName: String,
-    val isNullable: Boolean,
-    val typeArguments: List<Type>
-               ) {
+data class Type(val simpleName: String,
+                val packageName: String,
+                val isNullable: Boolean,
+                val typeArguments: List<Type>) {
 
     companion object {
 
         fun fromKotlinType(type: KotlinType): Type {
             val simpleName = type.fqName?.shortName()?.asString()
-                ?: throw NotImplementedError("Type has no FQ name: $type")
+                    ?: throw NotImplementedError("Type has no FQ name: $type")
             val packageName = type.fqName?.parent()?.toString() ?: ""
 
-            return Type(
-                simpleName = simpleName,
-                packageName = packageName,
-                isNullable = type.isMarkedNullable,
-                typeArguments = type.arguments.map { fromKotlinType(it.type) }
-                       )
+            return Type(simpleName = simpleName,
+                        packageName = packageName,
+                        isNullable = type.isMarkedNullable,
+                        typeArguments = type.arguments.map { fromKotlinType(it.type) })
         }
     }
 
     val typeName: TypeName =
-        ClassName(packageName, simpleName)
-            .let { className ->
-                if (typeArguments.isEmpty()) className
-                else className.parameterizedBy(typeArguments.map { it.typeName })
-            }
-            .copy(nullable = isNullable)
+            ClassName(packageName, simpleName)
+                    .let { className ->
+                        if (typeArguments.isEmpty()) className
+                        else className.parameterizedBy(typeArguments.map { it.typeName })
+                    }
+                    .copy(nullable = isNullable)
 }
