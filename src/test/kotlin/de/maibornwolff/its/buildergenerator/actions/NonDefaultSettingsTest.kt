@@ -4,7 +4,7 @@ import de.maibornwolff.its.buildergenerator.generator.GeneratorConfig
 import de.maibornwolff.its.buildergenerator.settings.AppSettingsState
 import org.junit.Test
 
-class NonDefaultSettingsTest: GenerateBuilderActionTestBase() {
+class NonDefaultSettingsTest: GenerateBuilderActionLightTestBase() {
 
     @Test
     fun testUsesNonDefaultSettingsForBuilderGeneration() {

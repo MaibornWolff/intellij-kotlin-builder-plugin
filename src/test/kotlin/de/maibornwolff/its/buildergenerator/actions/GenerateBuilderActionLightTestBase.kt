@@ -1,6 +1,5 @@
 package de.maibornwolff.its.buildergenerator.actions
 
-import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TestDialog
 import com.intellij.openapi.ui.TestDialogManager
 import com.intellij.openapi.vfs.VfsUtil
@@ -11,7 +10,7 @@ import org.junit.After
 import org.junit.Before
 import java.io.File
 
-abstract class GenerateBuilderActionTestBase: BasePlatformTestCase() {
+abstract class GenerateBuilderActionLightTestBase: BasePlatformTestCase() {
 
     @Before
     public override fun setUp() {

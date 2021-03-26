@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.idea.core.moveCaret
 import org.junit.Test
 
-class ErrorStatesTest: GenerateBuilderActionTestBase() {
+class ErrorStatesTest: GenerateBuilderActionLightTestBase() {
 
     @Test
     fun testErrorMessageWhenNotInADataClass() {

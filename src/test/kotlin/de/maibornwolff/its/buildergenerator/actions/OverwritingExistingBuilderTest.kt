@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.idea.core.moveCaret
 import org.junit.Test
 import java.io.File
 
-class OverwritingExistingBuilderTest: GenerateBuilderActionTestBase() {
+class OverwritingExistingBuilderTest: GenerateBuilderActionLightTestBase() {
 
     @Test
     fun testOverwritePromptedWhenBuilderAlreadyExists() {

@@ -4,7 +4,7 @@ import com.intellij.openapi.ui.TestDialog
 import com.intellij.openapi.ui.TestDialogManager
 import org.junit.Test
 
-class BuilderGenerationTest: GenerateBuilderActionTestBase() {
+class BuilderGenerationTest: GenerateBuilderActionLightTestBase() {
 
     @Test
     fun testGenerateBuilderForSimpleDataClass() {
