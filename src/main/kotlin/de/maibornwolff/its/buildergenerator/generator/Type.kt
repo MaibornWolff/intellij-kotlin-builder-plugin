@@ -31,7 +31,7 @@ data class Type(val simpleName: String,
                         typeArguments = type.arguments.map { fromKotlinType(it.type) })
         }
 
-        // TODO was passiert bei wrapped nullable primitive ?
+        // TODO provide with... functions for wrapped primitives using the primitive type as argument
         private fun wrappedPrimitiveTypeName(type: KotlinType): String? {
             val typeMemberScope = type.memberScope
             return if (typeMemberScope is LazyClassMemberScope) {

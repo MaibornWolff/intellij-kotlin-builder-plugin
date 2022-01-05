@@ -19,13 +19,14 @@ data class Property(val name: String,
 
     companion object {
 
-        // TODO add defaults for Double, Float
         private val collectionsDefaultValuesMap = mapOf("List" to "emptyList()",
                                                         "Map" to "emptyMap()",
                                                         "Set" to "emptySet()",
                                                         "Array" to "emptyArray()")
 
         val primitiveDefaultValuesMap = mapOf("String" to "\"a·string\"",
+                                              "Float" to "1.0F",
+                                              "Double" to "1.0",
                                               "Int" to "42",
                                               "Boolean" to "false",
                                               "Long" to "23L")
