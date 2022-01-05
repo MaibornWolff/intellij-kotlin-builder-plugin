@@ -6,6 +6,6 @@ data class DataClassWithComplexTypes(val property1: PropertyType1,
                                      val mapOfComplexTypeProperty: Map<Int, PropertyType2>,
                                      val nullableProperty: String?)
 
-data class PropertyType1(val rawValue: Int)
+data class PropertyType1(val rawValue: Int, val anotherRawValue: Int)
 
 data class PropertyType2(val rawValue: String, val otherValue: Boolean)

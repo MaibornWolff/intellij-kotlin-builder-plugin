@@ -19,4 +19,11 @@ class BuilderGenerationTest: GenerateBuilderActionLightTestBase() {
 
         testBuilderGeneratedCorrectlyForDataClass("DataClassWithComplexTypes", 30)
     }
+
+    @Test
+    fun testGenerateBuilderForSimpleDataWithWrappedPrimitivesClass() {
+        TestDialogManager.setTestDialog(TestDialog.OK)
+
+        testBuilderGeneratedCorrectlyForDataClass("SimpleDataClassWithWrappedPrimitives", 30)
+    }
 }
