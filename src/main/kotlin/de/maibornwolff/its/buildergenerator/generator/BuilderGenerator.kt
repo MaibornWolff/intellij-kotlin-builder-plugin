@@ -41,7 +41,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
                 PropertySpec.builder(property.name, property.type.typeName)
                         .addModifiers(KModifier.PRIVATE)
                         .mutable()
-                        .initializer(CodeBlock.of(property.getDefaultValue(project, config)))
+                        .initializer(property.getDefaultValue(project, config))
                         .build()
             })
 

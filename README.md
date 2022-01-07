@@ -20,11 +20,11 @@ This plugin for IntelliJ IDEA provides a quick way to implement a (simplified) B
 - Customizable builder class and method names via plugin configuration
 - Selectable placement of builder class in production or test sources
 - Automatic wrapping/unwrapping of "wrapped primitive"-type properties
+- Detection and usage of existing builders for property types
 
 ### *Work in progress:*
 
 - *Generated methods to add items to collection properties*
-- *Detection and usage of existing builders for property types*
 
 ## Setup
 

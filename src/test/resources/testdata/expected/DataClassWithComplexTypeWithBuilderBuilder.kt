@@ -1,5 +1,6 @@
 package testdata
 
+import testdata.otherpackage.PropertyTypeWithBuilderBuilder
 
 public class DataClassWithComplexTypeWithBuilderBuilder {
 

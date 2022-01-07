@@ -32,7 +32,7 @@ class BuilderGenerationTest: GenerateBuilderActionLightTestBase() {
         TestDialogManager.setTestDialog(TestDialog.OK)
 
         testBuilderGeneratedCorrectlyForDataClassWithOtherBuilder(dataClassUnderTest = "DataClassWithComplexTypeWithBuilder",
-                                                                  otherBuilder = "PropertyTypeWithBuilderBuilder.kt",
+                                                                  otherBuilder = "otherpackage/PropertyTypeWithBuilderBuilder.kt",
                                                                   caretOffsetOnDataClassName = 30)
     }
 }

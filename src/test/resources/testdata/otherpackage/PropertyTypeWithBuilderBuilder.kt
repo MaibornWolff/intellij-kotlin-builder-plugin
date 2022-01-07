@@ -1,5 +1,6 @@
-package testdata
+package testdata.otherpackage
 
+import testdata.PropertyTypeWithBuilder
 import kotlin.Boolean
 import kotlin.Int
 

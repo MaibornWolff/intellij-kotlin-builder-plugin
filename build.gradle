@@ -34,7 +34,9 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 patchPluginXml {
-    changeNotes = """ - Compatibility with IntelliJ IDEA 2021.3"""
+    changeNotes = """ - Compatibility with IntelliJ IDEA 2021.3
+                      - Automatic wrapping/unwrapping of "wrapped primitive"-type properties
+                      - Detection and usage of existing builders for property types"""
 }
 
 javafx {
