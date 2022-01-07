@@ -47,4 +47,27 @@ abstract class GenerateBuilderActionLightTestBase: BasePlatformTestCase() {
         assertThat(generatedBuilderCode).isEqualToIgnoringWhitespace(expectedBuilderCode)
     }
 
+    protected fun testBuilderGeneratedCorrectlyForDataClassWithOtherBuilder(dataClassUnderTest: String,
+                                                                            otherBuilder: String,
+                                                                            caretOffsetOnDataClassName: Int,
+                                                                            builderSuffix: String = "Builder") {
+        // arrange
+        val inputFile = "$dataClassUnderTest.kt"
+        myFixture.configureByFile(inputFile)
+        myFixture.copyFileToProject("$testDataPath/$otherBuilder")
+
+        // act
+        myFixture.editor.moveCaret(caretOffsetOnDataClassName)
+        myFixture.testAction(GenerateBuilderAction())
+
+        // assert
+        val generatedBuilderFile =
+                myFixture.file.containingDirectory.files.singleOrNull { it.name == "$dataClassUnderTest$builderSuffix.kt" }
+        assertThat(generatedBuilderFile).isNotNull
+
+        val generatedBuilderCode = VfsUtil.loadText(generatedBuilderFile!!.virtualFile)
+        val expectedBuilderCode = File("$testDataPath/expected/$dataClassUnderTest$builderSuffix.kt").readText()
+        assertThat(generatedBuilderCode).isEqualToIgnoringWhitespace(expectedBuilderCode)
+    }
+
 }

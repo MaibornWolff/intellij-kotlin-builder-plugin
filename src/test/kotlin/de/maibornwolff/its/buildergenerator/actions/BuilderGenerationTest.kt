@@ -26,4 +26,13 @@ class BuilderGenerationTest: GenerateBuilderActionLightTestBase() {
 
         testBuilderGeneratedCorrectlyForDataClass("SimpleDataClassWithWrappedPrimitives", 30)
     }
+
+    @Test
+    fun testGenerateBuilderForComplexDataClassWithBuilderDetectionForDefaults() {
+        TestDialogManager.setTestDialog(TestDialog.OK)
+
+        testBuilderGeneratedCorrectlyForDataClassWithOtherBuilder(dataClassUnderTest = "DataClassWithComplexTypeWithBuilder",
+                                                                  otherBuilder = "PropertyTypeWithBuilderBuilder.kt",
+                                                                  caretOffsetOnDataClassName = 30)
+    }
 }

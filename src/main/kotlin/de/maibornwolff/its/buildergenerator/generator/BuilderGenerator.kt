@@ -1,5 +1,6 @@
 package de.maibornwolff.its.buildergenerator.generator
 
+import com.intellij.openapi.project.Project
 import com.squareup.kotlinpoet.*
 import org.jetbrains.kotlin.backend.common.descriptors.allParameters
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeWithContent
@@ -8,7 +9,7 @@ import org.jetbrains.kotlin.resolve.BindingContext
 
 class BuilderGenerator(private val config: GeneratorConfig) {
 
-    fun generateBuilderForDataClass(builtClass: KtClass): FileSpec {
+    fun generateBuilderForDataClass(builtClass: KtClass, project: Project): FileSpec {
 
         val bindingContext = builtClass.containingKtFile.analyzeWithContent()
 
@@ -26,7 +27,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
         return FileSpec.builder(packageName, builderClassName)
                 .addType(
                         TypeSpec.classBuilder(ClassName(packageName, builderClassName))
-                                .addPropertyFields(properties)
+                                .addPropertyFields(properties, project)
                                 .addBuildFunction(properties, dataClassSimpleName)
                                 .addWithFunctions(properties)
                                 .build()
@@ -34,12 +35,13 @@ class BuilderGenerator(private val config: GeneratorConfig) {
                 .build()
     }
 
-    private fun TypeSpec.Builder.addPropertyFields(properties: List<Property>) =
+    private fun TypeSpec.Builder.addPropertyFields(properties: List<Property>,
+                                                   project: Project) =
             this.addProperties(properties.map { property ->
                 PropertySpec.builder(property.name, property.type.typeName)
                         .addModifiers(KModifier.PRIVATE)
                         .mutable()
-                        .initializer(CodeBlock.of(property.defaultValue))
+                        .initializer(CodeBlock.of(property.getDefaultValue(project, config)))
                         .build()
             })
 
