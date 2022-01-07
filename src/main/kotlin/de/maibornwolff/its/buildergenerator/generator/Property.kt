@@ -6,13 +6,13 @@ data class Property(val name: String,
                     val type: Type) {
 
     val defaultValue: String = when {
-        type.isNullable         -> "null"
-        type.isWrappedPrimitive -> generateWrappedPrimitiveDefault()
-        else                    -> defaultValuesMap[type.simpleName] ?: "TODO(\"Needs·a·default·value!\")"
+        type.isNullable                   -> "null"
+        type.wrappedPrimitiveType != null -> generateWrappedPrimitiveDefault(type.wrappedPrimitiveType)
+        else                              -> defaultValuesMap[type.simpleName] ?: "TODO(\"Needs·a·default·value!\")"
     }
 
-    private fun generateWrappedPrimitiveDefault(): String {
-        val wrappedTypeName = type.wrappedPrimitiveType
+    private fun generateWrappedPrimitiveDefault(wrappedType: WrappedPrimitive): String {
+        val wrappedTypeName = wrappedType.simpleName
         val wrappingTypeName = type.simpleName
         return "$wrappingTypeName(${defaultValuesMap[wrappedTypeName]})"
     }

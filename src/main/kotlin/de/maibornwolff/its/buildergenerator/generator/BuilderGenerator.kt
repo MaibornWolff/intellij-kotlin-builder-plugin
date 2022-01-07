@@ -47,9 +47,23 @@ class BuilderGenerator(private val config: GeneratorConfig) {
             this.apply {
                 properties.forEach {
                     this.addWithFunction(it)
+                    this.addOverloadingWithFunctionForWrappedPrimitive(it)
                     if (it.type.isNullable) this.addWithoutFunction(it)
                 }
             }
+
+    private fun TypeSpec.Builder.addOverloadingWithFunctionForWrappedPrimitive(property: Property): TypeSpec.Builder {
+        return if (property.type.wrappedPrimitiveType != null) {
+            val wrappingTypeName = property.type.simpleName
+            val nonNullableTypeName = property.type.wrappedPrimitiveType.typeName
+            this.addFunction(
+                    FunSpec.builder("${config.withFunctionPrefix}${property.name.capitalize()}")
+                            .addParameter(property.name, nonNullableTypeName)
+                            .addStatement("return·apply·{ this.${property.name}·= $wrappingTypeName(${property.name}) }")
+                            .build()
+            )
+        } else this
+    }
 
     private fun TypeSpec.Builder.addWithFunction(property: Property): TypeSpec.Builder {
         val nonNullableTypeName = property.type.typeName.copy(nullable = false)

@@ -1,5 +1,9 @@
 package testdata
 
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.String
+
 public class SimpleDataClassWithWrappedPrimitivesBuilder {
     private var intProperty: WrappedInt = WrappedInt(42)
 
@@ -13,9 +17,16 @@ public class SimpleDataClassWithWrappedPrimitivesBuilder {
 
     public fun withIntProperty(intProperty: WrappedInt) = apply { this.intProperty = intProperty }
 
-    public fun withStringProperty(stringProperty: WrappedString) = apply { this.stringProperty =
-        stringProperty }
+    public fun withIntProperty(intProperty: Int) = apply { this.intProperty = WrappedInt(intProperty) }
 
-    public fun withBooleanProperty(booleanProperty: WrappedBoolean) = apply { this.booleanProperty =
-        booleanProperty }
+    public fun withStringProperty(stringProperty: WrappedString) = apply { this.stringProperty = stringProperty }
+
+    public fun withStringProperty(stringProperty: String) =
+            apply { this.stringProperty = WrappedString(stringProperty) }
+
+    public fun withBooleanProperty(booleanProperty: WrappedBoolean) =
+            apply { this.booleanProperty = booleanProperty }
+
+    public fun withBooleanProperty(booleanProperty: Boolean) =
+            apply { this.booleanProperty = WrappedBoolean(booleanProperty) }
 }
