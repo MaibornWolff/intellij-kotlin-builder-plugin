@@ -8,7 +8,8 @@ import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassMemberScope
 import org.jetbrains.kotlin.types.KotlinType
 
 data class WrappedPrimitive(val packageName: String,
-                            val simpleName: String) {
+                            val simpleName: String,
+                            val isNullable: Boolean) {
 
     companion object {
 
@@ -16,19 +17,26 @@ data class WrappedPrimitive(val packageName: String,
             val typeMemberScope = type.memberScope
             return if (typeMemberScope is LazyClassMemberScope) {
                 val singleConstructor = typeMemberScope.getConstructors().singleOrNull()
-                val singleParameter = singleConstructor?.valueParameters?.singleOrNull()
-                val typeNameOfSingleParameter = singleParameter?.type?.nameIfStandardType?.toString()
-                val packageName = singleParameter?.type?.fqName?.parent().toString()
-                val wrappedPrimitiveTypeName =
-                        typeNameOfSingleParameter?.takeIf { Property.primitiveDefaultValuesMap.containsKey(it) }
-                wrappedPrimitiveTypeName?.let { WrappedPrimitive(packageName, it) }
+                val singleParameterType = singleConstructor?.valueParameters?.singleOrNull()?.type
+                createWrappedPrimitiveFromSingleConstructorParameter(singleParameterType)
             } else {
                 null
             }
+        }
+
+        private fun createWrappedPrimitiveFromSingleConstructorParameter(singleParameterType: KotlinType?): WrappedPrimitive? {
+            val typeNameOfSingleParameter = singleParameterType?.nameIfStandardType?.toString()
+            val packageName = singleParameterType?.fqName?.parent().toString()
+            val wrappedPrimitiveTypeName =
+                    typeNameOfSingleParameter?.takeIf { Property.primitiveDefaultValuesMap.containsKey(it) }
+            val nullablePrimitive = singleParameterType?.isMarkedNullable
+            return if (nullablePrimitive != null && wrappedPrimitiveTypeName != null) {
+                WrappedPrimitive(packageName, wrappedPrimitiveTypeName, nullablePrimitive)
+            } else null
         }
     }
 
     val typeName: TypeName =
             ClassName(packageName, simpleName)
-                    .copy(nullable = false) // TODO
+                    .copy(nullable = isNullable)
 }

@@ -17,7 +17,7 @@ public class SimpleDataClassWithWrappedPrimitivesBuilder {
 
     public fun withIntProperty(intProperty: WrappedInt) = apply { this.intProperty = intProperty }
 
-    public fun withIntProperty(intProperty: Int) = apply { this.intProperty = WrappedInt(intProperty) }
+    public fun withIntProperty(intProperty: Int?) = apply { this.intProperty = WrappedInt(intProperty) }
 
     public fun withStringProperty(stringProperty: WrappedString) = apply { this.stringProperty = stringProperty }
 
