@@ -1,13 +1,12 @@
 package de.maibornwolff.its.buildergenerator.generator
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.PsiShortNamesCache
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
+import org.jetbrains.kotlin.psi.KtFile
 
 data class Property(val name: String,
                     val type: Type) {
@@ -31,11 +30,12 @@ data class Property(val name: String,
     private fun generateDefaultFromBuilder(project: Project,
                                            config: GeneratorConfig): CodeBlock? {
         val expectedBuilderClassName = "${type.simpleName}${config.builderClassSuffix}"
-        val propertyBuilderClass: PsiClass? = PsiShortNamesCache
-                .getInstance(project)
-                .getClassesByName(expectedBuilderClassName, GlobalSearchScope.allScope(project)).singleOrNull()
-        val propertyBuilderPackageName = propertyBuilderClass?.getKotlinFqName()?.parent()?.toString()
-        val propertyBuilderName = propertyBuilderClass?.name
+        val propertyBuilderKtFile: KtFile? = PsiShortNamesCache.getInstance(project)
+            .getFilesByName("$expectedBuilderClassName.kt").singleOrNull() as? KtFile
+        val propertyBuilderClass = propertyBuilderKtFile?.classes
+            ?.singleOrNull { it.name?.contains(expectedBuilderClassName) ?: false }
+        val propertyBuilderPackageName: String? = propertyBuilderKtFile?.packageFqName?.toString()
+        val propertyBuilderName: String? = propertyBuilderClass?.getKotlinFqName()?.shortName()?.toString()
         return if (propertyBuilderPackageName != null && propertyBuilderName != null) {
             CodeBlock.Builder()
                     .add("%T", ClassName(propertyBuilderPackageName, propertyBuilderName))
