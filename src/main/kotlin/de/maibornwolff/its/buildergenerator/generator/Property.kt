@@ -27,8 +27,8 @@ data class Property(val name: String,
         generateDefaultFromBuilder(project, config) ?:
         CodeBlock.of("TODO(\"Needs·a·default·value!\")")
 
-    private fun generateDefaultFromBuilder(project: Project,
-                                           config: GeneratorConfig): CodeBlock? {
+    fun findBuilder(project: Project,
+                    config: GeneratorConfig): PropertyBuilder? {
         val expectedBuilderClassName = "${type.simpleName}${config.builderClassSuffix}"
         val propertyBuilderKtFile: KtFile? = PsiShortNamesCache.getInstance(project)
             .getFilesByName("$expectedBuilderClassName.kt").singleOrNull() as? KtFile
@@ -37,8 +37,16 @@ data class Property(val name: String,
         val propertyBuilderPackageName: String? = propertyBuilderKtFile?.packageFqName?.toString()
         val propertyBuilderName: String? = propertyBuilderClass?.getKotlinFqName()?.shortName()?.toString()
         return if (propertyBuilderPackageName != null && propertyBuilderName != null) {
+            PropertyBuilder(propertyBuilderName, propertyBuilderPackageName)
+        } else null
+    }
+
+    private fun generateDefaultFromBuilder(project: Project,
+                                           config: GeneratorConfig): CodeBlock? {
+        val propertyBuilder = findBuilder(project, config)
+        return if (propertyBuilder != null) {
             CodeBlock.Builder()
-                    .add("%T", ClassName(propertyBuilderPackageName, propertyBuilderName))
+                    .add("%T", ClassName(propertyBuilder.packageName, propertyBuilder.name))
                     .add("().${config.buildFunctionName}()")
                     .build()
         } else null

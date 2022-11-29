@@ -7,9 +7,9 @@ import org.jetbrains.kotlin.idea.caches.resolve.analyzeWithContent
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.resolve.BindingContext
 
-class BuilderGenerator(private val config: GeneratorConfig) {
+class BuilderGenerator(private val config: GeneratorConfig, private val project: Project) {
 
-    fun generateBuilderForDataClass(builtClass: KtClass, project: Project): FileSpec {
+    fun generateBuilderForDataClass(builtClass: KtClass): FileSpec {
 
         val bindingContext = builtClass.containingKtFile.analyzeWithContent()
 
@@ -27,7 +27,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
         return FileSpec.builder(packageName, builderClassName)
                 .addType(
                         TypeSpec.classBuilder(ClassName(packageName, builderClassName))
-                                .addPropertyFields(properties, project)
+                                .addPropertyFields(properties)
                                 .addBuildFunction(properties, dataClassSimpleName)
                                 .addWithFunctions(properties)
                                 .build()
@@ -35,8 +35,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
                 .build()
     }
 
-    private fun TypeSpec.Builder.addPropertyFields(properties: List<Property>,
-                                                   project: Project) =
+    private fun TypeSpec.Builder.addPropertyFields(properties: List<Property>) =
             this.addProperties(properties.map { property ->
                 PropertySpec.builder(property.name, property.type.typeName)
                         .addModifiers(KModifier.PRIVATE)
@@ -50,6 +49,7 @@ class BuilderGenerator(private val config: GeneratorConfig) {
                 properties.forEach {
                     this.addWithFunction(it)
                     this.addOverloadingWithFunctionForWrappedPrimitive(it)
+                    this.addOverloadingWithFunctionForTypeWithBuilder(it)
                     if (it.type.isNullable) this.addWithoutFunction(it)
                 }
             }
@@ -63,6 +63,20 @@ class BuilderGenerator(private val config: GeneratorConfig) {
                             .addParameter(property.name, nonNullableTypeName)
                             .addStatement("return·apply·{ this.${property.name}·= $wrappingTypeName(${property.name}) }")
                             .build()
+            )
+        } else this
+    }
+
+    private fun TypeSpec.Builder.addOverloadingWithFunctionForTypeWithBuilder(property: Property): TypeSpec.Builder {
+        val propertyBuilder = property.findBuilder(project, config)
+        return if (propertyBuilder != null) {
+            val propertyBuilderTypename = ClassName(propertyBuilder.packageName, propertyBuilder.name)
+            val builderfunctionLambdaTypeName = LambdaTypeName.get(propertyBuilderTypename, emptyList(), UNIT)
+            this.addFunction(
+                FunSpec.builder("${config.withFunctionPrefix}${property.name.capitalize()}")
+                    .addParameter("initialize", builderfunctionLambdaTypeName)
+                    .addStatement("return·apply·{ this.${property.name}·= ${propertyBuilder.name}().apply(initialize).${config.buildFunctionName}() }")
+                    .build()
             )
         } else this
     }
