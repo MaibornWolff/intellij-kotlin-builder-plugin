@@ -36,7 +36,7 @@ class GenerateBuilderAction: AnAction() {
 
     private fun generateBuilder(dataClass: KtClass, project: Project) {
         val currentConfig = AppSettingsState.getInstance().config
-        val builderSpec = BuilderGenerator(currentConfig).generateBuilderForDataClass(dataClass, project)
+        val builderSpec = BuilderGenerator(currentConfig, project).generateBuilderForDataClass(dataClass)
         val builderDirectory = SourceRootChoice.chooseTargetDirectory(dataClass, project)
         val builderFileName = "${builderSpec.name}.${KotlinFileType.EXTENSION}"
         val builderFileContents = builderSpec.toString()
