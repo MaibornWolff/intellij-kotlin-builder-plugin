@@ -14,7 +14,6 @@ import de.maibornwolff.its.buildergenerator.util.isNonNullDataClass
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 import org.slf4j.LoggerFactory
-import kotlin.contracts.ExperimentalContracts
 
 class GenerateBuilderAction: AnAction() {
 
@@ -22,7 +21,6 @@ class GenerateBuilderAction: AnAction() {
 
     // TODO implement a check which makes the action invisible when caret is not on a valid class
 
-    @ExperimentalContracts
     override fun actionPerformed(event: AnActionEvent) {
         event.project?.let {
             val classUnderCaret = event.getClassUnderCaret()
