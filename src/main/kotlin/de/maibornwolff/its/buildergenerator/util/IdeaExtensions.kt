@@ -8,7 +8,7 @@ import kotlin.contracts.contract
 
 fun AnActionEvent.getClassUnderCaret() = this.dataContext.getData("psi.Element") as? KtClass
 
-@ExperimentalContracts
+@OptIn(ExperimentalContracts::class)
 fun KtClass?.isNonNullDataClass(): Boolean {
     contract {
         returns(true) implies (this@isNonNullDataClass != null)
